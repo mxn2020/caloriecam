@@ -1,0 +1,16 @@
+id: 03cd6f1d-2eed-4bc6-a91a-50cd49942a94
+name: caloriecam
+description: "AI calorie tracker — snap meal photos for calorie and macro breakdowns"
+tier: prototype
+lane: side-projects
+priority: medium
+category: vision
+focus: true
+open_tasks: 0
+oss: false
+stack: [typescript, react, convex, vite]
+repo: null
+deploy_url: null
+last_active: 2026-03-02
+tags: []
+notes:
