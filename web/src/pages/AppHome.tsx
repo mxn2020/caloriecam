@@ -1,187 +1,80 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { useAction, useMutation } from 'convex/react';
-import { api } from '../../convex/_generated/api';
-
-interface MealResult {
-    mealName: string;
-    totalCalories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-    fiber: number;
-    items: { name: string; calories: number; protein: number; carbs: number; fat: number; portion: string }[];
-    healthScore: number;
-    tip: string;
-}
-
-function ImageUploader({ onSelect, preview, onClear }: { onSelect: (b64: string) => void; preview: string | null; onClear: () => void }) {
-    const [dragging, setDragging] = useState(false);
-    const ref = useRef<HTMLInputElement>(null);
-    const handle = useCallback((f: File) => {
-        if (!f.type.startsWith('image/')) return;
-        const r = new FileReader();
-        r.onload = (e) => onSelect(e.target?.result as string);
-        r.readAsDataURL(f);
-    }, [onSelect]);
-
-    if (preview) return (
-        <div style={{ position: 'relative', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
-            <img src={preview} alt="Meal" style={{ width: '100%', maxHeight: 320, objectFit: 'cover', display: 'block' }} />
-            <button className="btn btn--ghost" onClick={onClear} style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(0,0,0,0.6)', borderRadius: 'var(--radius-full)', width: 32, height: 32, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-        </div>
-    );
-
-    return (
-        <div
-            className={`roomiq-dropzone ${dragging ? 'active' : ''}`}
-            onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) handle(f); }}
-            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-            onDragLeave={() => setDragging(false)}
-            onClick={() => ref.current?.click()}
-        >
-            <span style={{ fontSize: '3rem' }}>🍽️</span>
-            <p style={{ fontWeight: 600, marginTop: 'var(--space-sm)' }}>Drop your meal photo or click to upload</p>
-            <p style={{ color: 'var(--color-smoke-gray)', fontSize: '0.85rem' }}>JPG, PNG, WebP</p>
-            <input ref={ref} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handle(f); }} />
-        </div>
-    );
-}
+import { useState } from "react";
+import { Camera, Apple, TrendingUp, History, Utensils, Flame } from "lucide-react";
 
 export default function AppHome() {
-    const [img, setImg] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<MealResult | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [loadIdx, setLoadIdx] = useState(0);
-
-    const analyze = useAction(api.ai.analyzeMeal);
-    const save = useMutation(api.functions.saveScan);
-
-    const msgs = ["Identifying food items…", "Calculating macros…", "Analyzing nutritional value…", "Almost ready…"];
-    useEffect(() => {
-        if (!loading) return;
-        const i = setInterval(() => setLoadIdx(n => (n + 1) % msgs.length), 2500);
-        return () => clearInterval(i);
-    }, [loading]);
-
-    const handleScan = useCallback(async () => {
-        if (!img) return;
-        setLoading(true);
-        setError(null);
-        try {
-            const r = await analyze({ imageBase64: img });
-            setResult(r);
-            await save(r);
-        } catch (e: any) {
-            setError(e.message || 'Analysis failed');
-        } finally {
-            setLoading(false);
-        }
-    }, [img, analyze, save]);
-
-    const reset = () => { setImg(null); setResult(null); setError(null); };
-
-    const getColor = (score: number) => score >= 7 ? '#22c55e' : score >= 4 ? '#f59e0b' : '#ef4444';
-
-    if (loading) {
-        return (
-            <div className="roomiq-page animate-fade-in">
-                <div className="card" style={{ maxWidth: 480, margin: '0 auto', textAlign: 'center', padding: 'var(--space-2xl)' }}>
-                    <div className="animate-spin" style={{ fontSize: '2.5rem', marginBottom: 'var(--space-md)' }}>🍽️</div>
-                    <h2 style={{ marginBottom: 'var(--space-sm)' }}>Analyzing Your Meal</h2>
-                    <p style={{ color: 'var(--color-smoke-gray)' }}>{msgs[loadIdx]}</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (result) {
-        return (
-            <div className="roomiq-page animate-fade-in">
-                <div className="card" style={{ maxWidth: 680, margin: '0 auto' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', marginBottom: 'var(--space-xl)' }}>
-                        <span style={{ fontSize: '2rem' }}>🥗</span>
-                        <h2>{result.mealName}</h2>
-                    </div>
-
-                    {/* Macro Grid */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-md)', marginBottom: 'var(--space-xl)' }}>
-                        <div className="card" style={{ textAlign: 'center', padding: 'var(--space-md)' }}>
-                            <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{result.totalCalories}</div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-smoke-gray)' }}>Calories</div>
-                        </div>
-                        <div className="card" style={{ textAlign: 'center', padding: 'var(--space-md)' }}>
-                            <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#3b82f6' }}>{result.protein}<span style={{ fontSize: '0.8rem' }}>g</span></div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-smoke-gray)' }}>Protein</div>
-                        </div>
-                        <div className="card" style={{ textAlign: 'center', padding: 'var(--space-md)' }}>
-                            <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#f59e0b' }}>{result.carbs}<span style={{ fontSize: '0.8rem' }}>g</span></div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-smoke-gray)' }}>Carbs</div>
-                        </div>
-                        <div className="card" style={{ textAlign: 'center', padding: 'var(--space-md)' }}>
-                            <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#ef4444' }}>{result.fat}<span style={{ fontSize: '0.8rem' }}>g</span></div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-smoke-gray)' }}>Fat</div>
-                        </div>
-                    </div>
-
-                    {/* Items Breakdown */}
-                    <h3 style={{ marginBottom: 'var(--space-md)', fontSize: '1rem' }}>Breakdown</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)', marginBottom: 'var(--space-xl)' }}>
-                        {result.items.map((item, i) => (
-                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 'var(--space-sm) var(--space-md)', borderRadius: 'var(--radius-sm)', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)' }}>
-                                <div>
-                                    <span style={{ fontWeight: 600 }}>{item.name}</span>
-                                    <br /><span style={{ fontSize: '0.8rem', color: 'var(--color-smoke-gray)' }}>{item.portion}</span>
-                                </div>
-                                <span style={{ fontWeight: 600, color: 'var(--color-accent)' }}>{item.calories} cal</span>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Health Score */}
-                    <div style={{ marginBottom: 'var(--space-lg)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-xs)' }}>
-                            <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Health Score</span>
-                            <span style={{ fontWeight: 700, color: getColor(result.healthScore) }}>{result.healthScore}/10</span>
-                        </div>
-                        <div style={{ height: 8, borderRadius: 'var(--radius-full)', background: 'var(--color-border)', overflow: 'hidden' }}>
-                            <div style={{ height: '100%', width: `${result.healthScore * 10}%`, background: getColor(result.healthScore), borderRadius: 'var(--radius-full)', transition: 'width 0.5s ease' }} />
-                        </div>
-                    </div>
-
-                    {/* Tip */}
-                    <div className="card" style={{ padding: 'var(--space-md)', background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.2)' }}>
-                        <span style={{ marginRight: 'var(--space-sm)' }}>💡</span>
-                        <span style={{ fontSize: '0.9rem', color: 'var(--color-smoke-gray)' }}>{result.tip}</span>
-                    </div>
-
-                    <div style={{ marginTop: 'var(--space-xl)', textAlign: 'center' }}>
-                        <button className="btn btn--primary" onClick={reset}>📸 Scan Another Meal</button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    const [dragOver, setDragOver] = useState(false);
 
     return (
-        <div className="roomiq-page animate-fade-in">
-            <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
-                <h1 style={{ marginBottom: 'var(--space-md)' }}>
-                    Scan Your <span style={{ color: 'var(--color-accent)' }}>Meal</span>
-                </h1>
-                <p style={{ color: 'var(--color-smoke-gray)', fontSize: '1.05rem', marginBottom: 'var(--space-xl)', lineHeight: 1.7 }}>
-                    Snap a photo of your food and get instant calorie and macro breakdowns powered by AI.
+        <div style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1rem" }}>
+            {/* Hero */}
+            <div style={{
+                textAlign: "center", marginBottom: "2rem",
+                background: "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(239,68,68,0.08))",
+                borderRadius: 16, padding: "2.5rem 1.5rem", border: "1px solid rgba(245,158,11,0.2)"
+            }}>
+                <Apple size={48} style={{ color: "var(--color-accent)", marginBottom: 12 }} />
+                <h1 style={{ fontSize: "2rem", fontWeight: 700, marginBottom: 8 }}>CalorieCam</h1>
+                <p style={{ color: "var(--color-text-secondary)", fontSize: "1.1rem" }}>
+                    Snap a photo of your meal — get instant calorie and macro breakdowns
                 </p>
+            </div>
 
-                <ImageUploader onSelect={setImg} preview={img} onClear={() => setImg(null)} />
+            {/* Today's Summary */}
+            <div style={{
+                display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+                gap: "0.75rem", marginBottom: "2rem"
+            }}>
+                {[
+                    { label: "Calories", value: "—", icon: Flame, color: "#EF4444" },
+                    { label: "Protein", value: "—", icon: TrendingUp, color: "#3B82F6" },
+                    { label: "Carbs", value: "—", icon: Utensils, color: "#F59E0B" },
+                    { label: "Fat", value: "—", icon: Apple, color: "#10B981" },
+                ].map((stat, i) => (
+                    <div key={i} style={{
+                        padding: "1rem", borderRadius: 12, background: `${stat.color}08`,
+                        border: `1px solid ${stat.color}20`, textAlign: "center"
+                    }}>
+                        <stat.icon size={20} style={{ color: stat.color, marginBottom: 4 }} />
+                        <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>{stat.value}</div>
+                        <div style={{ fontSize: "0.8rem", color: "var(--color-text-secondary)" }}>{stat.label}</div>
+                    </div>
+                ))}
+            </div>
 
-                {error && (
-                    <p style={{ color: 'var(--color-hot-red)', marginTop: 'var(--space-md)', fontSize: '0.9rem' }}>{error}</p>
-                )}
-
-                <button className="btn btn--primary btn--lg" disabled={!img} onClick={handleScan} style={{ marginTop: 'var(--space-lg)' }}>
-                    📊 Analyze Meal
+            {/* Upload Area */}
+            <div
+                onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={e => { e.preventDefault(); setDragOver(false); }}
+                style={{
+                    padding: "3rem", textAlign: "center", borderRadius: 16, marginBottom: "2rem",
+                    border: `2px dashed ${dragOver ? "var(--color-accent)" : "var(--color-border)"}`,
+                    background: dragOver ? "rgba(245,158,11,0.05)" : "var(--color-surface)",
+                    cursor: "pointer", transition: "all 0.2s"
+                }}
+            >
+                <Camera size={40} style={{ color: "var(--color-accent)", marginBottom: 12 }} />
+                <h3 style={{ fontWeight: 600, marginBottom: 8 }}>Snap or upload a meal photo</h3>
+                <p style={{ color: "var(--color-text-secondary)", marginBottom: 16 }}>AI will analyze calories, protein, carbs, and fat</p>
+                <button style={{
+                    padding: "0.6rem 2rem", borderRadius: 10, background: "var(--color-accent)",
+                    color: "white", fontWeight: 600, border: "none", cursor: "pointer",
+                    display: "inline-flex", alignItems: "center", gap: 6
+                }}>
+                    <Camera size={16} /> Take Photo
                 </button>
+            </div>
+
+            {/* Recent Meals */}
+            <h2 style={{ fontSize: "1.2rem", fontWeight: 600, marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: 8 }}>
+                <History size={20} /> Today's Meals
+            </h2>
+            <div style={{
+                padding: "2rem", textAlign: "center", borderRadius: 14,
+                background: "var(--color-surface)", border: "1px solid var(--color-border)",
+                color: "var(--color-text-secondary)"
+            }}>
+                No meals logged yet today. Snap a photo to get started!
             </div>
         </div>
     );
