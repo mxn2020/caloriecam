@@ -13,7 +13,7 @@ export const analyzeMeal = action({
             body: JSON.stringify({
                 model: "gpt-4o",
                 messages: [
-                    { role: "system", content: `You are CalorieCam, an expert nutritionist AI. Analyze food photos and provide accurate macro breakdowns. Be specific about portion sizes. Output valid JSON only.` },
+                    { role: "system", content: `You are CalorieIq, an expert nutritionist AI. Analyze food photos and provide accurate macro breakdowns. Be specific about portion sizes. Output valid JSON only.` },
                     {
                         role: "user", content: [
                             {

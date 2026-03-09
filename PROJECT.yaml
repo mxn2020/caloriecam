@@ -1,5 +1,5 @@
-id: 03cd6f1d-2eed-4bc6-a91a-50cd49942a94
-name: caloriecam
+id: 842d61f9-187a-4635-8e98-14bffee32a0e
+name: calorieiq
 description: "AI calorie tracker — snap meal photos for calorie and macro breakdowns"
 tier: prototype
 lane: side-projects
@@ -9,8 +9,8 @@ focus: true
 open_tasks: 0
 oss: false
 stack: [typescript, react, convex, vite]
-repo: null
+repo: https://github.com/mxn2020/calorieiq
 deploy_url: null
 last_active: 2026-03-02
-tags: []
+tags: [calorie,ai,nutrition,convex]
 notes:

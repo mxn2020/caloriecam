@@ -1,0 +1,12 @@
+services:
+  convex:
+    project: CalorieIQ
+  vercel:
+    project: CalorieIQ
+  stripe:
+    mode: live
+  nvidia:
+    api: nvidia-nims
+  github:
+    owner: mxn2020
+    repo: calorieiq

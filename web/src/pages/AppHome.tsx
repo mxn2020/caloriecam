@@ -13,7 +13,7 @@ export default function AppHome() {
                 borderRadius: 16, padding: "2.5rem 1.5rem", border: "1px solid rgba(245,158,11,0.2)"
             }}>
                 <Apple size={48} style={{ color: "var(--color-accent)", marginBottom: 12 }} />
-                <h1 style={{ fontSize: "2rem", fontWeight: 700, marginBottom: 8 }}>CalorieCam</h1>
+                <h1 style={{ fontSize: "2rem", fontWeight: 700, marginBottom: 8 }}>CalorieIq</h1>
                 <p style={{ color: "var(--color-text-secondary)", fontSize: "1.1rem" }}>
                     Snap a photo of your meal — get instant calorie and macro breakdowns
                 </p>

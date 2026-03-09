@@ -10,7 +10,7 @@ export default function LandingPage() {
                 <div className="landing-hero__content">
                     <h1 className="landing-hero__title">
                         <Camera size={40} style={{ color: 'var(--color-accent)' }} />
-                        <span>CalorieCam</span>
+                        <span>CalorieIq</span>
                     </h1>
                     <p className="landing-hero__tagline">
                         Snap a photo of your meal and get instant calorie counts, macro breakdowns, and nutrition insights — powered by AI.
