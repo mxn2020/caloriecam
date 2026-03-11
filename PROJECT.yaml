@@ -1,16 +1,18 @@
-id: 842d61f9-187a-4635-8e98-14bffee32a0e
 name: calorieiq
-description: "AI calorie tracker — snap meal photos for calorie and macro breakdowns"
+project_scope: main
+project_type: standalone
+description: AI calorie tracker — snap meal photos for calorie and macro breakdowns
 tier: prototype
 lane: side-projects
 priority: medium
-category: vision
-focus: true
-open_tasks: 0
 oss: false
 stack: [typescript, react, convex, vite]
-repo: https://github.com/mxn2020/calorieiq
+repo: "https://github.com/mxn2020/calorieiq"
 deploy_url: null
 last_active: 2026-03-02
-tags: [calorie,ai,nutrition,convex]
-notes:
+tags: [calorie, ai, nutrition, convex, health, food, vision, tracking]
+notes: null
+category: webapp
+focus: true
+open_tasks: 0
+id: 842d61f9-187a-4635-8e98-14bffee32a0e
